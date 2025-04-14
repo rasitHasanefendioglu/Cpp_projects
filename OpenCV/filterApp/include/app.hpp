@@ -2,6 +2,13 @@
 #define APP_HPP
 #include "utils.hpp"
 
-cv::Mat blurImage(const cv::Mat& inputImage, int kernelSize, int sigma = 0, bool colored = false);
+struct ImageDataGaussian {
+    cv::Mat image;
+    int kernelSize = 3;
+    int sigma = 0;
+    int colored = 0;
+};
+
+cv::Mat blurImageGaussian(ImageDataGaussian input);
 
 #endif // APP_HPP

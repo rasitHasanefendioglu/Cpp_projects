@@ -1,16 +1,31 @@
+#include <vector>
+
 #include "app.hpp"
 
-cv::Mat blurImage(const cv::Mat& inputImage, int kernelSize, int sigma, bool colored) {
-    if (kernelSize % 2 == 0) {
+cv::Mat blurImageGaussian(ImageDataGaussian input) {
+    if (input.kernelSize % 2 == 0 || input.kernelSize < 1) {
         std::cerr << "Kernel size must be odd.\n";
-        return inputImage;
+        return input.image;
     }
     cv::Mat blurredImage;
-    if(!colored && inputImage.channels() == 3) {
-        cv::cvtColor(inputImage, blurredImage, cv::COLOR_BGR2GRAY);
-    } else {
-        blurredImage = inputImage.clone();
+    if(!input.colored && input.image.channels() == 3) {
+        cv::cvtColor(input.image, blurredImage, cv::COLOR_BGR2GRAY);
+    } 
+    else if(input.colored && input.image.channels() == 3){
+        std::vector<cv::Mat> channels(3);
+        cv::split(input.image,channels);
+        for(int i = 0; i < 3; i++){
+            cv::GaussianBlur(channels[i], channels[i], cv::Size(input.kernelSize, 
+                input.kernelSize), input.sigma, input.sigma);
+        }
+        cv::merge(channels, blurredImage);
+        return blurredImage;
+        
     }
-    cv::GaussianBlur(blurredImage, blurredImage, cv::Size(kernelSize, kernelSize), sigma, sigma);
+    else {
+        blurredImage = input.image.clone();
+    }
+    cv::GaussianBlur(blurredImage, blurredImage, cv::Size(input.kernelSize, 
+        input.kernelSize), input.sigma, input.sigma);
     return blurredImage;
 }
